@@ -1,26 +1,252 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --desktop-bg: #008080;
+  --win-gray: #c0c0c0;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+* {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--desktop-bg);
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Override 98.css window for canvas items */
+.canvas-item .window {
+  margin: 0;
+  position: absolute;
+}
+
+.canvas-item .window-body {
+  margin: 0;
+  padding: 4px;
+}
+
+/* Title bar drag cursor */
+.canvas-item .title-bar {
+  cursor: grab;
+  user-select: none;
+}
+
+.canvas-item .title-bar:active {
+  cursor: grabbing;
+}
+
+/* Content editable text area styling */
+.text-content {
+  min-width: 150px;
+  min-height: 40px;
+  outline: none;
+  padding: 4px;
+  font-family: "Pixelated MS Sans Serif", Arial, sans-serif;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.text-content:focus {
+  background: #fff;
+}
+
+/* Canvas container */
+.canvas-container {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+  background: var(--desktop-bg);
+  cursor: default;
+}
+
+.canvas-container.panning {
+  cursor: grabbing;
+}
+
+/* Viewport transform layer */
+.canvas-viewport {
+  transform-origin: 0 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+}
+
+/* Taskbar */
+.taskbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  padding: 2px 4px;
+  gap: 4px;
+  background: var(--win-gray);
+  border-top: 2px solid #fff;
+  box-shadow: inset 0 1px 0 #dfdfdf;
+}
+
+.taskbar-divider {
+  width: 2px;
+  height: 24px;
+  border-left: 1px solid #808080;
+  border-right: 1px solid #fff;
+  margin: 0 2px;
+}
+
+.taskbar-clock {
+  margin-left: auto;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-family: "Pixelated MS Sans Serif", Arial, sans-serif;
+  border: 1px solid;
+  border-color: #808080 #fff #fff #808080;
+  background: var(--win-gray);
+  min-width: 70px;
+  text-align: center;
+}
+
+.taskbar-status {
+  font-size: 11px;
+  font-family: "Pixelated MS Sans Serif", Arial, sans-serif;
+  padding: 0 4px;
+}
+
+/* Empty state */
+.empty-state {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: rgba(255, 255, 255, 0.5);
+  font-family: "Pixelated MS Sans Serif", Arial, sans-serif;
+  font-size: 14px;
+  text-align: center;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* BlurhashImage crossfade */
+.blurhash-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.blurhash-container canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.blurhash-container img {
+  position: relative;
+  width: 100%;
+  height: auto;
+  display: block;
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+.blurhash-container img.loaded {
+  opacity: 1;
+}
+
+/* Image item body */
+.image-item-body {
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden;
+}
+
+.image-item-body img {
+  display: block;
+  max-width: 400px;
+  max-height: 400px;
+}
+
+/* File item */
+.file-item-body {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px !important;
+  font-family: "Pixelated MS Sans Serif", Arial, sans-serif;
+  font-size: 12px;
+}
+
+.file-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+}
+
+.file-info {
+  overflow: hidden;
+}
+
+.file-name {
+  font-weight: bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+}
+
+.file-size {
+  color: #808080;
+  font-size: 11px;
+}
+
+/* Selected item */
+.canvas-item.selected .window {
+  outline: 2px dotted #000080;
+  outline-offset: 2px;
+}
+
+/* Landing page */
+.landing-desktop {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--desktop-bg);
+}
+
+.landing-window {
+  min-width: 360px;
+  text-align: center;
+}
+
+.landing-window .window-body {
+  padding: 24px 32px !important;
+}
+
+.landing-title {
+  font-size: 24px;
+  font-weight: bold;
+  letter-spacing: 6px;
+  margin-bottom: 16px;
+  font-family: "Pixelated MS Sans Serif", Arial, sans-serif;
+}
+
+.landing-subtitle {
+  font-size: 12px;
+  color: #808080;
+  margin-bottom: 24px;
+  font-family: "Pixelated MS Sans Serif", Arial, sans-serif;
+  line-height: 1.5;
 }
