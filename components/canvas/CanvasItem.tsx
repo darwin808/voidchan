@@ -39,8 +39,14 @@ export function CanvasItem({
       e.stopPropagation();
       onSelect(item.id);
       onBringToFront(item.id);
+
+      // Don't start drag if clicking inside editable text
+      const target = e.target as HTMLElement;
+      if (target.isContentEditable || target.closest("[contenteditable]")) {
+        return;
+      }
+
       onDragStart(e, item.id, item.x, item.y);
-      (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
     },
     [item.id, item.x, item.y, onDragStart, onSelect, onBringToFront]
   );
@@ -53,7 +59,7 @@ export function CanvasItem({
         left: item.x,
         top: item.y,
         zIndex: item.z_index,
-        cursor: "move",
+        cursor: item.type === "text" ? "default" : "move",
       }}
       onPointerDown={handlePointerDown}
     >
