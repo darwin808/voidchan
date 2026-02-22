@@ -3,10 +3,11 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Item, ItemType } from "@/lib/types";
-import { nanoid } from "nanoid";
 
 export function useRealtimeItems(roomId: string | null, sessionId: string) {
   const [items, setItems] = useState<Map<string, Item>>(new Map());
+  const itemsRef = useRef(items);
+  itemsRef.current = items;
   const supabase = useRef(createClient()).current;
 
   // Fetch initial items
@@ -78,11 +79,11 @@ export function useRealtimeItems(roomId: string | null, sessionId: string) {
 
   const getMaxZIndex = useCallback(() => {
     let max = 0;
-    items.forEach((item) => {
+    itemsRef.current.forEach((item) => {
       if (item.z_index > max) max = item.z_index;
     });
     return max;
-  }, [items]);
+  }, []);
 
   const addItem = useCallback(
     async (
@@ -143,34 +144,28 @@ export function useRealtimeItems(roomId: string | null, sessionId: string) {
 
   const updateItem = useCallback(
     async (id: string, updates: Partial<Item>) => {
-      const existing = items.get(id);
-      if (!existing) return;
+      const updatedAt = new Date().toISOString();
 
-      const updated = {
-        ...existing,
-        ...updates,
-        updated_at: new Date().toISOString(),
-      };
-
-      // Optimistic update
+      // Optimistic update using functional setState (no stale closure)
       setItems((prev) => {
+        const existing = prev.get(id);
+        if (!existing) return prev;
         const next = new Map(prev);
-        next.set(id, updated);
+        next.set(id, { ...existing, ...updates, updated_at: updatedAt });
         return next;
       });
 
+      // Always send the DB update
       await supabase
         .from("items")
-        .update({ ...updates, updated_at: updated.updated_at })
+        .update({ ...updates, updated_at: updatedAt })
         .eq("id", id);
     },
-    [items, supabase]
+    [supabase]
   );
 
   const deleteItem = useCallback(
     async (id: string) => {
-      const existing = items.get(id);
-
       // Optimistic delete
       setItems((prev) => {
         const next = new Map(prev);
@@ -180,16 +175,23 @@ export function useRealtimeItems(roomId: string | null, sessionId: string) {
 
       const { error } = await supabase.from("items").delete().eq("id", id);
 
-      if (error && existing) {
-        // Rollback
-        setItems((prev) => {
-          const next = new Map(prev);
-          next.set(id, existing);
-          return next;
-        });
+      if (error) {
+        // Rollback by refetching — we lost the reference
+        const { data } = await supabase
+          .from("items")
+          .select("*")
+          .eq("id", id)
+          .single();
+        if (data) {
+          setItems((prev) => {
+            const next = new Map(prev);
+            next.set(id, data);
+            return next;
+          });
+        }
       }
     },
-    [items, supabase]
+    [supabase]
   );
 
   const bringToFront = useCallback(
