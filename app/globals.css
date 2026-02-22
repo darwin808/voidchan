@@ -344,46 +344,39 @@ html, body {
   height: 0;
 }
 
-/* ===== CANVAS ITEMS (Win95 windows) ===== */
-.canvas-item .window {
-  margin: 0;
-  position: absolute;
-}
-
-.canvas-item .window-body {
-  margin: 0;
-  padding: 4px;
-}
-
-.canvas-item .title-bar {
-  cursor: grab;
+/* ===== CANVAS ITEMS (raw content, Paint-style) ===== */
+.canvas-item {
   user-select: none;
 }
 
-.canvas-item .title-bar:active {
-  cursor: grabbing;
+.canvas-item.selected {
+  outline: 1px dashed #000;
+  outline-offset: 0px;
 }
 
-.canvas-item.selected .window {
-  outline: 1px dashed #000;
-  outline-offset: 2px;
+@keyframes marching-ants {
+  from { outline-offset: 0px; }
+  to { outline-offset: -8px; }
 }
 
 /* ===== TEXT ITEM ===== */
 .text-content {
-  min-width: 150px;
-  min-height: 40px;
+  min-width: 80px;
+  min-height: 20px;
   outline: none;
-  padding: 4px;
+  padding: 2px 4px;
   font-family: var(--win-font);
   font-size: 11px;
   line-height: 1.4;
   white-space: pre-wrap;
   word-break: break-word;
+  background: transparent;
+  cursor: text;
 }
 
 .text-content:focus {
   background: #fff;
+  border: 1px dashed #808080;
 }
 
 /* ===== IMAGE ITEM ===== */

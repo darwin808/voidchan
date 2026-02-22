@@ -274,12 +274,11 @@ export function Canvas({ slug }: CanvasProps) {
     [room?.id, canvasState, processAndUpload]
   );
 
-  // Title bar drag handler
-  const handleTitleBarPointerDown = useCallback(
+  // Item drag handler
+  const handleItemDragStart = useCallback(
     (e: React.PointerEvent, itemId: string, itemX: number, itemY: number) => {
       setDragItemId(itemId);
       startDrag(itemId, e.pointerId, e.clientX, e.clientY, itemX, itemY);
-      (e.target as HTMLElement).setPointerCapture(e.pointerId);
     },
     [startDrag]
   );
@@ -402,7 +401,7 @@ export function Canvas({ slug }: CanvasProps) {
                     selected={selectedId === item.id}
                     onDelete={deleteItem}
                     onUpdate={updateItem}
-                    onTitleBarPointerDown={handleTitleBarPointerDown}
+                    onDragStart={handleItemDragStart}
                     onSelect={setSelectedId}
                     onBringToFront={bringToFront}
                   />
