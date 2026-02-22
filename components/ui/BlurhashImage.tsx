@@ -39,16 +39,43 @@ export function BlurhashImage({
     }
   }, [blurhash]);
 
+  // Reset loaded state when src changes
+  useEffect(() => {
+    setLoaded(false);
+  }, [src]);
+
   return (
-    <div className="blurhash-container" style={{ width, height }}>
-      {blurhash && <canvas ref={canvasRef} />}
+    <div style={{ position: "relative", width, height, overflow: "hidden" }}>
+      {/* Blurhash canvas — always fills container */}
+      {blurhash && (
+        <canvas
+          ref={canvasRef}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+          }}
+        />
+      )}
+      {/* Real image — fades in over blurhash */}
       {src && (
         <img
           src={src}
           alt={alt}
-          className={loaded ? "loaded" : ""}
           onLoad={() => setLoaded(true)}
           draggable={false}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "contain",
+            opacity: loaded ? 1 : 0,
+            transition: "opacity 300ms ease",
+          }}
         />
       )}
     </div>
