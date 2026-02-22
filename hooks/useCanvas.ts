@@ -40,14 +40,17 @@ export function useCanvas() {
 
   const onPointerMove = useCallback((e: React.PointerEvent) => {
     const s = stateRef.current;
+    const pan = panStart.current;
 
-    if (s.mode === "panning" && panStart.current) {
-      const dx = e.clientX - panStart.current.x;
-      const dy = e.clientY - panStart.current.y;
+    if (s.mode === "panning" && pan) {
+      const dx = e.clientX - pan.x;
+      const dy = e.clientY - pan.y;
+      const ox = pan.ox + dx;
+      const oy = pan.oy + dy;
       setState((prev) => ({
         ...prev,
-        offsetX: panStart.current!.ox + dx,
-        offsetY: panStart.current!.oy + dy,
+        offsetX: ox,
+        offsetY: oy,
       }));
     }
   }, []);
