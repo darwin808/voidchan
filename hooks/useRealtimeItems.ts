@@ -142,6 +142,20 @@ export function useRealtimeItems(roomId: string | null, sessionId: string) {
     [roomId, sessionId, supabase, getMaxZIndex]
   );
 
+  // Local-only update (no DB write) — use for high-frequency events like dragging
+  const updateItemLocal = useCallback(
+    (id: string, updates: Partial<Item>) => {
+      setItems((prev) => {
+        const existing = prev.get(id);
+        if (!existing) return prev;
+        const next = new Map(prev);
+        next.set(id, { ...existing, ...updates });
+        return next;
+      });
+    },
+    []
+  );
+
   const updateItem = useCallback(
     async (id: string, updates: Partial<Item>) => {
       const updatedAt = new Date().toISOString();
@@ -206,6 +220,7 @@ export function useRealtimeItems(roomId: string | null, sessionId: string) {
     items: Array.from(items.values()).sort((a, b) => a.z_index - b.z_index),
     addItem,
     updateItem,
+    updateItemLocal,
     deleteItem,
     bringToFront,
   };

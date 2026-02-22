@@ -19,7 +19,7 @@ interface CanvasProps {
 export function Canvas({ slug }: CanvasProps) {
   const { room, loading } = useRoom(slug);
   const sessionId = useSessionId();
-  const { items, addItem, updateItem, deleteItem, bringToFront } =
+  const { items, addItem, updateItem, updateItemLocal, deleteItem, bringToFront } =
     useRealtimeItems(room?.id ?? null, sessionId);
   const {
     state: canvasState,
@@ -235,22 +235,29 @@ export function Canvas({ slug }: CanvasProps) {
       if (dragItemId && canvasState.mode === "dragging") {
         const pos = getDragPosition(e.clientX, e.clientY);
         if (pos) {
-          // Local optimistic position — will persist on pointer up
-          updateItem(dragItemId, { x: pos.x, y: pos.y });
+          // Local only — no DB write during drag
+          updateItemLocal(dragItemId, { x: pos.x, y: pos.y });
         }
       } else {
         canvasPointerMove(e);
       }
     },
-    [dragItemId, canvasState.mode, getDragPosition, updateItem, canvasPointerMove]
+    [dragItemId, canvasState.mode, getDragPosition, updateItemLocal, canvasPointerMove]
   );
 
   const handlePointerUp = useCallback(
     (e: React.PointerEvent) => {
+      if (dragItemId) {
+        // Persist final position to DB on drop
+        const pos = getDragPosition(e.clientX, e.clientY);
+        if (pos) {
+          updateItem(dragItemId, { x: pos.x, y: pos.y });
+        }
+      }
       setDragItemId(null);
       canvasPointerUp();
     },
-    [canvasPointerUp]
+    [dragItemId, getDragPosition, updateItem, canvasPointerUp]
   );
 
   // Canvas background pointer down → start pan or deselect
