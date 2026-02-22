@@ -3,6 +3,7 @@
 :root {
   --desktop-bg: #008080;
   --win-gray: #c0c0c0;
+  --win-font: "Pixelated MS Sans Serif", Arial, sans-serif;
 }
 
 * {
@@ -16,9 +17,296 @@ html, body {
   height: 100%;
   overflow: hidden;
   background: var(--desktop-bg);
+  font-family: var(--win-font);
+  font-size: 12px;
 }
 
-/* Override 98.css window for canvas items */
+/* ===== MS PAINT SHELL ===== */
+.paint-shell {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+  background: var(--desktop-bg);
+  padding: 2px;
+}
+
+.paint-window {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  margin: 0 !important;
+}
+
+.paint-window > .title-bar {
+  flex-shrink: 0;
+}
+
+/* ===== MENU BAR ===== */
+.paint-menubar {
+  display: flex;
+  align-items: center;
+  background: var(--win-gray);
+  padding: 1px 0;
+  flex-shrink: 0;
+  border-bottom: 1px solid #808080;
+}
+
+.paint-menu-item {
+  position: relative;
+}
+
+.paint-menu-btn {
+  background: none;
+  border: none;
+  padding: 2px 8px;
+  font-family: var(--win-font);
+  font-size: 12px;
+  cursor: default;
+  min-width: unset;
+}
+
+.paint-menu-btn:hover,
+.paint-menu-btn.active {
+  background: #000080;
+  color: #fff;
+}
+
+.paint-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 10000;
+  min-width: 200px;
+  background: var(--win-gray);
+  border: 2px solid;
+  border-color: #fff #808080 #808080 #fff;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+  padding: 2px;
+}
+
+.paint-dropdown button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 3px 24px 3px 8px;
+  font-family: var(--win-font);
+  font-size: 12px;
+  text-align: left;
+  cursor: default;
+  min-width: unset;
+}
+
+.paint-dropdown button:hover:not(:disabled) {
+  background: #000080;
+  color: #fff;
+}
+
+.paint-dropdown button:disabled {
+  color: #808080;
+}
+
+.paint-shortcut {
+  color: #808080;
+  font-size: 11px;
+}
+
+.paint-dropdown button:hover .paint-shortcut {
+  color: #c0c0c0;
+}
+
+.paint-dropdown-sep {
+  height: 1px;
+  margin: 2px 4px;
+  border-top: 1px solid #808080;
+  border-bottom: 1px solid #fff;
+}
+
+/* ===== TOOLBOX ===== */
+.paint-toolbox {
+  width: 52px;
+  flex-shrink: 0;
+  background: var(--win-gray);
+  border-right: 1px solid #808080;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.paint-toolbox-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+}
+
+.paint-tool-btn {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  padding: 0;
+  border: 1px solid;
+  border-color: #fff #808080 #808080 #fff;
+  background: var(--win-gray);
+  cursor: default;
+  min-width: unset;
+}
+
+.paint-tool-btn.active {
+  border-color: #808080 #fff #fff #808080;
+  background: #b0b0b0;
+}
+
+.paint-tool-btn:active {
+  border-color: #808080 #fff #fff #808080;
+}
+
+/* ===== PAINT BODY (toolbox + canvas) ===== */
+.paint-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.paint-canvas-wrap {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid;
+  border-color: #808080 #fff #fff #808080;
+}
+
+/* ===== COLOR PALETTE ===== */
+.paint-palette {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  background: var(--win-gray);
+  flex-shrink: 0;
+  border-top: 1px solid #fff;
+}
+
+.paint-color-preview {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.paint-color-fg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 18px;
+  height: 18px;
+  border: 1px solid;
+  border-color: #808080 #fff #fff #808080;
+}
+
+.paint-color-bg {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 18px;
+  height: 18px;
+  border: 1px solid;
+  border-color: #808080 #fff #fff #808080;
+}
+
+.paint-color-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+}
+
+.paint-color-swatch {
+  width: 16px;
+  height: 16px;
+  border: 1px solid;
+  border-color: #808080 #fff #fff #808080;
+  padding: 0;
+  cursor: default;
+  min-width: unset;
+}
+
+.paint-color-swatch:active {
+  border-color: #fff #808080 #808080 #fff;
+}
+
+/* ===== STATUS BAR ===== */
+.paint-statusbar {
+  display: flex;
+  align-items: center;
+  background: var(--win-gray);
+  flex-shrink: 0;
+  border-top: 1px solid #fff;
+  height: 22px;
+  font-size: 11px;
+}
+
+.paint-status-cell {
+  padding: 0 8px;
+  border-right: 1px solid;
+  border-right-color: #808080;
+  box-shadow: 1px 0 0 #fff;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.paint-status-clock {
+  margin-left: auto;
+  border-right: none;
+  box-shadow: none;
+}
+
+/* ===== CANVAS ===== */
+.canvas-container {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  background: #fff;
+  cursor: crosshair;
+}
+
+.canvas-container.panning {
+  cursor: grabbing;
+}
+
+.canvas-container.cursor-text {
+  cursor: text;
+}
+
+.canvas-container.cursor-pan {
+  cursor: grab;
+}
+
+.canvas-container.cursor-pan.panning {
+  cursor: grabbing;
+}
+
+.canvas-viewport {
+  transform-origin: 0 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+}
+
+/* ===== CANVAS ITEMS (Win95 windows) ===== */
 .canvas-item .window {
   margin: 0;
   position: absolute;
@@ -29,7 +317,6 @@ html, body {
   padding: 4px;
 }
 
-/* Title bar drag cursor */
 .canvas-item .title-bar {
   cursor: grab;
   user-select: none;
@@ -39,13 +326,18 @@ html, body {
   cursor: grabbing;
 }
 
-/* Content editable text area styling */
+.canvas-item.selected .window {
+  outline: 1px dashed #000;
+  outline-offset: 2px;
+}
+
+/* ===== TEXT ITEM ===== */
 .text-content {
   min-width: 150px;
   min-height: 40px;
   outline: none;
   padding: 4px;
-  font-family: "Pixelated MS Sans Serif", Arial, sans-serif;
+  font-family: var(--win-font);
   font-size: 12px;
   line-height: 1.4;
   white-space: pre-wrap;
@@ -56,88 +348,7 @@ html, body {
   background: #fff;
 }
 
-/* Canvas container */
-.canvas-container {
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-  position: relative;
-  background: var(--desktop-bg);
-  cursor: default;
-}
-
-.canvas-container.panning {
-  cursor: grabbing;
-}
-
-/* Viewport transform layer */
-.canvas-viewport {
-  transform-origin: 0 0;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 0;
-  height: 0;
-}
-
-/* Taskbar */
-.taskbar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 9999;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  padding: 2px 4px;
-  gap: 4px;
-  background: var(--win-gray);
-  border-top: 2px solid #fff;
-  box-shadow: inset 0 1px 0 #dfdfdf;
-}
-
-.taskbar-divider {
-  width: 2px;
-  height: 24px;
-  border-left: 1px solid #808080;
-  border-right: 1px solid #fff;
-  margin: 0 2px;
-}
-
-.taskbar-clock {
-  margin-left: auto;
-  padding: 2px 8px;
-  font-size: 11px;
-  font-family: "Pixelated MS Sans Serif", Arial, sans-serif;
-  border: 1px solid;
-  border-color: #808080 #fff #fff #808080;
-  background: var(--win-gray);
-  min-width: 70px;
-  text-align: center;
-}
-
-.taskbar-status {
-  font-size: 11px;
-  font-family: "Pixelated MS Sans Serif", Arial, sans-serif;
-  padding: 0 4px;
-}
-
-/* Empty state */
-.empty-state {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: rgba(255, 255, 255, 0.5);
-  font-family: "Pixelated MS Sans Serif", Arial, sans-serif;
-  font-size: 14px;
-  text-align: center;
-  pointer-events: none;
-  user-select: none;
-}
-
-/* BlurhashImage crossfade */
+/* ===== IMAGE ITEM ===== */
 .blurhash-container {
   position: relative;
   overflow: hidden;
@@ -165,7 +376,6 @@ html, body {
   opacity: 1;
 }
 
-/* Image item body */
 .image-item-body {
   padding: 0 !important;
   margin: 0 !important;
@@ -178,13 +388,12 @@ html, body {
   max-height: 400px;
 }
 
-/* File item */
+/* ===== FILE ITEM ===== */
 .file-item-body {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 8px !important;
-  font-family: "Pixelated MS Sans Serif", Arial, sans-serif;
   font-size: 12px;
 }
 
@@ -210,13 +419,20 @@ html, body {
   font-size: 11px;
 }
 
-/* Selected item */
-.canvas-item.selected .window {
-  outline: 2px dotted #000080;
-  outline-offset: 2px;
+/* ===== EMPTY STATE ===== */
+.empty-state {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #c0c0c0;
+  font-size: 13px;
+  text-align: center;
+  pointer-events: none;
+  user-select: none;
 }
 
-/* Landing page */
+/* ===== LANDING PAGE ===== */
 .landing-desktop {
   width: 100vw;
   height: 100vh;
@@ -240,13 +456,11 @@ html, body {
   font-weight: bold;
   letter-spacing: 6px;
   margin-bottom: 16px;
-  font-family: "Pixelated MS Sans Serif", Arial, sans-serif;
 }
 
 .landing-subtitle {
   font-size: 12px;
   color: #808080;
   margin-bottom: 24px;
-  font-family: "Pixelated MS Sans Serif", Arial, sans-serif;
   line-height: 1.5;
 }

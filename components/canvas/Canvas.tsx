@@ -9,7 +9,10 @@ import { useImagePipeline } from "@/hooks/useImagePipeline";
 import { screenToCanvas } from "@/lib/canvas/math";
 import { CanvasViewport } from "./CanvasViewport";
 import { CanvasItem } from "./CanvasItem";
-import { Taskbar } from "@/components/taskbar/Taskbar";
+import { PaintMenuBar } from "@/components/paint/PaintMenuBar";
+import { PaintToolbox, type PaintTool } from "@/components/paint/PaintToolbox";
+import { PaintStatusBar } from "@/components/paint/PaintStatusBar";
+import { PaintColorPalette } from "@/components/paint/PaintColorPalette";
 import { createClient } from "@/lib/supabase/client";
 
 interface CanvasProps {
@@ -34,6 +37,8 @@ export function Canvas({ slug }: CanvasProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [connectedCount, setConnectedCount] = useState(1);
   const [dragItemId, setDragItemId] = useState<string | null>(null);
+  const [activeTool, setActiveTool] = useState<PaintTool>("select");
+  const [mouseCanvasPos, setMouseCanvasPos] = useState({ x: 0, y: 0 });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -69,20 +74,19 @@ export function Canvas({ slug }: CanvasProps) {
     };
   }, [room?.id, sessionId]);
 
-  // Paste handler
+  // Paste handler (Cmd+V)
   useEffect(() => {
     function handlePaste(e: ClipboardEvent) {
       if (!room?.id) return;
-      const items = e.clipboardData?.items;
-      if (!items) return;
+      const clipItems = e.clipboardData?.items;
+      if (!clipItems) return;
 
-      for (const item of items) {
+      for (const item of clipItems) {
         if (item.type.startsWith("image/")) {
           e.preventDefault();
           const file = item.getAsFile();
           if (!file) continue;
 
-          // Place at center of viewport
           const cx = window.innerWidth / 2;
           const cy = window.innerHeight / 2;
           const pos = screenToCanvas(
@@ -101,6 +105,47 @@ export function Canvas({ slug }: CanvasProps) {
     document.addEventListener("paste", handlePaste);
     return () => document.removeEventListener("paste", handlePaste);
   }, [room?.id, canvasState, processAndUpload]);
+
+  // Copy handler (Cmd+C) — copy selected image to clipboard
+  useEffect(() => {
+    function handleCopy(e: ClipboardEvent) {
+      if (!selectedId) return;
+      if ((e.target as HTMLElement).isContentEditable) return;
+
+      const selectedItem = items.find((i) => i.id === selectedId);
+      if (!selectedItem || selectedItem.type !== "image" || !selectedItem.content) return;
+
+      e.preventDefault();
+
+      // Fetch the image and write to clipboard as PNG
+      fetch(selectedItem.content)
+        .then((res) => res.blob())
+        .then((blob) => {
+          // Clipboard API requires image/png
+          const canvas = document.createElement("canvas");
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+          img.onload = () => {
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            const ctx = canvas.getContext("2d")!;
+            ctx.drawImage(img, 0, 0);
+            canvas.toBlob((pngBlob) => {
+              if (pngBlob) {
+                navigator.clipboard.write([
+                  new ClipboardItem({ "image/png": pngBlob }),
+                ]);
+              }
+            }, "image/png");
+          };
+          img.src = selectedItem.content!;
+        })
+        .catch(() => {});
+    }
+
+    document.addEventListener("copy", handleCopy);
+    return () => document.removeEventListener("copy", handleCopy);
+  }, [selectedId, items]);
 
   // Drop handler
   useEffect(() => {
@@ -154,7 +199,24 @@ export function Canvas({ slug }: CanvasProps) {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [selectedId, deleteItem]);
 
-  // Double click → new text item
+  // Double click or click with text tool → new text item
+  const handleCanvasClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (!room?.id) return;
+      if (activeTool === "text") {
+        const pos = screenToCanvas(
+          e.clientX,
+          e.clientY,
+          canvasState.offsetX,
+          canvasState.offsetY,
+          canvasState.scale
+        );
+        addItem("text", pos.x, pos.y, { content: "" });
+      }
+    },
+    [room?.id, activeTool, canvasState, addItem]
+  );
+
   const handleDoubleClick = useCallback(
     (e: React.MouseEvent) => {
       if (!room?.id) return;
@@ -170,25 +232,29 @@ export function Canvas({ slug }: CanvasProps) {
     [room?.id, canvasState, addItem]
   );
 
-  // New text at center
   const handleNewText = useCallback(() => {
     if (!room?.id) return;
     const cx = window.innerWidth / 2;
     const cy = window.innerHeight / 2;
-    const pos = screenToCanvas(
-      cx,
-      cy,
-      canvasState.offsetX,
-      canvasState.offsetY,
-      canvasState.scale
-    );
+    const pos = screenToCanvas(cx, cy, canvasState.offsetX, canvasState.offsetY, canvasState.scale);
     addItem("text", pos.x, pos.y, { content: "" });
   }, [room?.id, canvasState, addItem]);
 
-  // Upload button
   const handleUpload = useCallback(() => {
     fileInputRef.current?.click();
   }, []);
+
+  const handleShare = useCallback(async () => {
+    const url = `${window.location.origin}/r/${slug}`;
+    await navigator.clipboard.writeText(url);
+  }, [slug]);
+
+  const handleDeleteSelected = useCallback(() => {
+    if (selectedId) {
+      deleteItem(selectedId);
+      setSelectedId(null);
+    }
+  }, [selectedId, deleteItem]);
 
   const handleFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -197,13 +263,7 @@ export function Canvas({ slug }: CanvasProps) {
 
       const cx = window.innerWidth / 2;
       const cy = window.innerHeight / 2;
-      const pos = screenToCanvas(
-        cx,
-        cy,
-        canvasState.offsetX,
-        canvasState.offsetY,
-        canvasState.scale
-      );
+      const pos = screenToCanvas(cx, cy, canvasState.offsetX, canvasState.offsetY, canvasState.scale);
 
       for (const file of files) {
         processAndUpload(file, pos.x, pos.y);
@@ -216,12 +276,7 @@ export function Canvas({ slug }: CanvasProps) {
 
   // Title bar drag handler
   const handleTitleBarPointerDown = useCallback(
-    (
-      e: React.PointerEvent,
-      itemId: string,
-      itemX: number,
-      itemY: number
-    ) => {
+    (e: React.PointerEvent, itemId: string, itemX: number, itemY: number) => {
       setDragItemId(itemId);
       startDrag(itemId, e.pointerId, e.clientX, e.clientY, itemX, itemY);
       (e.target as HTMLElement).setPointerCapture(e.pointerId);
@@ -229,26 +284,34 @@ export function Canvas({ slug }: CanvasProps) {
     [startDrag]
   );
 
-  // Pointer move: either pan or drag item
+  // Pointer move: pan or drag
   const handlePointerMove = useCallback(
     (e: React.PointerEvent) => {
+      // Track mouse position for status bar
+      const pos = screenToCanvas(
+        e.clientX,
+        e.clientY,
+        canvasState.offsetX,
+        canvasState.offsetY,
+        canvasState.scale
+      );
+      setMouseCanvasPos(pos);
+
       if (dragItemId && canvasState.mode === "dragging") {
-        const pos = getDragPosition(e.clientX, e.clientY);
-        if (pos) {
-          // Local only — no DB write during drag
-          updateItemLocal(dragItemId, { x: pos.x, y: pos.y });
+        const dragPos = getDragPosition(e.clientX, e.clientY);
+        if (dragPos) {
+          updateItemLocal(dragItemId, { x: dragPos.x, y: dragPos.y });
         }
       } else {
         canvasPointerMove(e);
       }
     },
-    [dragItemId, canvasState.mode, getDragPosition, updateItemLocal, canvasPointerMove]
+    [dragItemId, canvasState, getDragPosition, updateItemLocal, canvasPointerMove]
   );
 
   const handlePointerUp = useCallback(
     (e: React.PointerEvent) => {
       if (dragItemId) {
-        // Persist final position to DB on drop
         const pos = getDragPosition(e.clientX, e.clientY);
         if (pos) {
           updateItem(dragItemId, { x: pos.x, y: pos.y });
@@ -260,15 +323,16 @@ export function Canvas({ slug }: CanvasProps) {
     [dragItemId, getDragPosition, updateItem, canvasPointerUp]
   );
 
-  // Canvas background pointer down → start pan or deselect
   const handleCanvasPointerDown = useCallback(
     (e: React.PointerEvent) => {
       if (e.button === 0) {
         setSelectedId(null);
-        startPan(e);
+        if (activeTool === "pan" || activeTool === "select") {
+          startPan(e);
+        }
       }
     },
-    [startPan]
+    [activeTool, startPan]
   );
 
   if (loading) {
@@ -287,49 +351,84 @@ export function Canvas({ slug }: CanvasProps) {
   }
 
   return (
-    <>
-      <div
-        ref={containerRef}
-        className={`canvas-container ${canvasState.mode === "panning" ? "panning" : ""}`}
-        onPointerDown={handleCanvasPointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onWheel={onWheel}
-        onDoubleClick={handleDoubleClick}
-      >
-        <CanvasViewport
-          offsetX={canvasState.offsetX}
-          offsetY={canvasState.offsetY}
-          scale={canvasState.scale}
-        >
-          {items.map((item) => (
-            <CanvasItem
-              key={item.id}
-              item={item}
-              sessionId={sessionId}
-              selected={selectedId === item.id}
-              onDelete={deleteItem}
-              onUpdate={updateItem}
-              onTitleBarPointerDown={handleTitleBarPointerDown}
-              onSelect={setSelectedId}
-              onBringToFront={bringToFront}
-            />
-          ))}
-        </CanvasViewport>
-
-        {items.length === 0 && (
-          <div className="empty-state">
-            Double-click to add text or Ctrl+V to paste an image
+    <div className="paint-shell">
+      {/* Outer MS Paint window */}
+      <div className="window paint-window">
+        <div className="title-bar">
+          <div className="title-bar-text">voidchan - {slug}</div>
+          <div className="title-bar-controls">
+            <button aria-label="Minimize" />
+            <button aria-label="Maximize" />
+            <button aria-label="Close" />
           </div>
-        )}
-      </div>
+        </div>
 
-      <Taskbar
-        onNewText={handleNewText}
-        onUpload={handleUpload}
-        connectedCount={connectedCount}
-        slug={slug}
-      />
+        {/* Menu bar */}
+        <PaintMenuBar
+          onNewText={handleNewText}
+          onUpload={handleUpload}
+          onShare={handleShare}
+          onSelectAll={() => {}}
+          onDeleteSelected={handleDeleteSelected}
+          hasSelection={!!selectedId}
+          slug={slug}
+        />
+
+        {/* Main area: toolbox + canvas */}
+        <div className="paint-body">
+          <PaintToolbox activeTool={activeTool} onToolChange={setActiveTool} />
+
+          <div className="paint-canvas-wrap">
+            <div
+              ref={containerRef}
+              className={`canvas-container ${canvasState.mode === "panning" ? "panning" : ""} ${
+                activeTool === "text" ? "cursor-text" : activeTool === "pan" ? "cursor-pan" : ""
+              }`}
+              onPointerDown={handleCanvasPointerDown}
+              onPointerMove={handlePointerMove}
+              onPointerUp={handlePointerUp}
+              onWheel={onWheel}
+              onClick={handleCanvasClick}
+              onDoubleClick={handleDoubleClick}
+            >
+              <CanvasViewport
+                offsetX={canvasState.offsetX}
+                offsetY={canvasState.offsetY}
+                scale={canvasState.scale}
+              >
+                {items.map((item) => (
+                  <CanvasItem
+                    key={item.id}
+                    item={item}
+                    sessionId={sessionId}
+                    selected={selectedId === item.id}
+                    onDelete={deleteItem}
+                    onUpdate={updateItem}
+                    onTitleBarPointerDown={handleTitleBarPointerDown}
+                    onSelect={setSelectedId}
+                    onBringToFront={bringToFront}
+                  />
+                ))}
+              </CanvasViewport>
+
+              {items.length === 0 && (
+                <div className="empty-state">
+                  Double-click to add text · Ctrl+V to paste · Drag files to upload
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom: color palette + status bar */}
+        <PaintColorPalette />
+        <PaintStatusBar
+          connectedCount={connectedCount}
+          canvasX={mouseCanvasPos.x}
+          canvasY={mouseCanvasPos.y}
+          scale={canvasState.scale}
+        />
+      </div>
 
       <input
         ref={fileInputRef}
@@ -339,6 +438,6 @@ export function Canvas({ slug }: CanvasProps) {
         style={{ display: "none" }}
         onChange={handleFileChange}
       />
-    </>
+    </div>
   );
 }
