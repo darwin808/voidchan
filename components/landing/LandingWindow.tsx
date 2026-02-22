@@ -12,22 +12,16 @@ export function LandingWindow() {
   }
 
   return (
-    <div className="window landing-window">
-      <div className="title-bar">
-        <div className="title-bar-text">voidchan</div>
-        <div className="title-bar-controls">
-          <button aria-label="Close" />
-        </div>
+    <div className="landing-window">
+      <div className="landing-title">voidchan</div>
+      <div className="landing-subtitle">
+        Drop anything. Share with anyone.
+        <br />
+        Anonymous. Ephemeral.
       </div>
-      <div className="window-body">
-        <div className="landing-title">V O I D C H A N</div>
-        <div className="landing-subtitle">
-          drop anything. share with anyone.
-          <br />
-          anonymous. ephemeral.
-        </div>
-        <button onClick={handleCreate}>Create New Board</button>
-      </div>
+      <button className="landing-btn" onClick={handleCreate}>
+        Create New Board
+      </button>
     </div>
   );
 }

@@ -1,9 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  --desktop-bg: #008080;
-  --win-gray: #c0c0c0;
-  --win-font: "Pixelated MS Sans Serif", Arial, sans-serif;
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --border: #e0e0e0;
+  --text: #1b1b1f;
+  --text-secondary: #6b6b76;
+  --primary: #6965db;
+  --primary-light: #eeedfc;
+  --radius: 10px;
+  --shadow: 0 0 0 1px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.08);
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 * {
@@ -16,324 +23,25 @@ html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: var(--desktop-bg);
-  font-family: var(--win-font);
-  font-size: 11px;
-}
-
-/* ===== MS PAINT SHELL ===== */
-.paint-shell {
-  width: 100vw;
-  height: 100vh;
-  background: var(--desktop-bg);
-  padding: 0;
-  display: flex;
-}
-
-.paint-window {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 100%;
-  margin: 0 !important;
-}
-
-.paint-window > .title-bar {
-  flex-shrink: 0;
-}
-
-/* ===== MENU BAR (exact MS Paint) ===== */
-.paint-menubar {
-  display: flex;
-  align-items: center;
-  background: var(--win-gray);
-  padding: 0;
-  flex-shrink: 0;
-}
-
-.paint-menu-item {
-  position: relative;
-}
-
-.paint-menu-btn {
-  background: none;
-  border: 1px solid transparent;
-  padding: 1px 6px;
-  font-family: var(--win-font);
-  font-size: 11px;
-  cursor: default;
-  min-width: unset;
-  line-height: 1.4;
-}
-
-.paint-menu-btn u {
-  text-decoration: underline;
-}
-
-.paint-menu-btn:hover {
-  border-color: #fff #808080 #808080 #fff;
-}
-
-.paint-menu-btn.active {
-  background: #fff;
-  border-color: #808080 #fff #fff #808080;
-}
-
-.paint-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  z-index: 10000;
-  min-width: 180px;
-  background: var(--win-gray);
-  border: 2px solid;
-  border-color: #fff #808080 #808080 #fff;
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.25);
-  padding: 2px;
-}
-
-.paint-dropdown button {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  background: none;
-  border: 1px solid transparent;
-  padding: 2px 16px 2px 20px;
-  font-family: var(--win-font);
-  font-size: 11px;
-  text-align: left;
-  cursor: default;
-  min-width: unset;
-}
-
-.paint-dropdown button u {
-  text-decoration: underline;
-}
-
-.paint-dropdown button:hover:not(:disabled) {
-  background: #000080;
-  color: #fff;
-}
-
-.paint-dropdown button:disabled {
-  color: #808080;
-}
-
-.paint-shortcut {
-  color: #808080;
-  font-size: 11px;
-  margin-left: 20px;
-}
-
-.paint-dropdown button:hover:not(:disabled) .paint-shortcut {
-  color: #c0c0c0;
-}
-
-.paint-dropdown-sep {
-  height: 0;
-  margin: 3px 2px;
-  border-top: 1px solid #808080;
-  border-bottom: 1px solid #fff;
-}
-
-/* ===== TOOLBOX (MS Paint: 2col × 8row grid) ===== */
-.paint-toolbox {
-  width: 58px;
-  flex-shrink: 0;
-  background: var(--win-gray);
-  padding: 2px 4px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  border-right: 1px solid #808080;
-  box-shadow: inset -1px 0 0 #dfdfdf;
-}
-
-.paint-toolbox-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0px;
-  border: 2px solid;
-  border-color: #808080 #fff #fff #808080;
-  padding: 1px;
-  background: var(--win-gray);
-}
-
-.paint-tool-btn {
-  width: 24px;
-  height: 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  line-height: 1;
-  padding: 0;
-  border: 1px solid transparent;
-  background: var(--win-gray);
-  cursor: default;
-  min-width: unset;
-}
-
-.paint-tool-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-}
-
-.paint-tool-btn.active {
-  border-color: #808080 #fff #fff #808080;
-  background: #fff;
-}
-
-.paint-tool-btn:hover:not(.active) {
-  border-color: #fff #808080 #808080 #fff;
-}
-
-.paint-tool-btn:active {
-  border-color: #808080 #fff #fff #808080;
-}
-
-/* ===== PAINT BODY (toolbox + canvas) ===== */
-.paint-body {
-  flex: 1;
-  display: flex;
-  overflow: hidden;
-  min-height: 0;
-}
-
-.paint-canvas-wrap {
-  flex: 1;
-  position: relative;
-  overflow: hidden;
-  /* Sunken 3D border like MS Paint canvas area */
-  border: 2px solid;
-  border-color: #808080 #fff #fff #808080;
-  background: #808080;
-}
-
-/* ===== COLOR PALETTE (exact MS Paint: 28 colors in 2 rows) ===== */
-.paint-palette {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 4px;
-  background: var(--win-gray);
-  flex-shrink: 0;
-  border-top: 1px solid #808080;
-  box-shadow: inset 0 1px 0 #fff;
-  height: 34px;
-}
-
-.paint-color-preview {
-  position: relative;
-  width: 30px;
-  height: 28px;
-  flex-shrink: 0;
-  margin-right: 2px;
-}
-
-.paint-color-fg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 16px;
-  height: 16px;
-  border: 1px solid #808080;
-  z-index: 1;
-}
-
-.paint-color-bg {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 16px;
-  height: 16px;
-  border: 1px solid #808080;
-}
-
-.paint-color-grid {
-  display: grid;
-  grid-template-columns: repeat(14, 16px);
-  grid-template-rows: 16px 16px;
-  gap: 0px;
-  border: 2px solid;
-  border-color: #808080 #fff #fff #808080;
-  padding: 0;
-}
-
-.paint-color-swatch {
-  width: 16px;
-  height: 16px;
-  border: none;
-  padding: 0;
-  cursor: default;
-  min-width: unset;
-}
-
-.paint-color-swatch:hover {
-  outline: 1px solid #000;
-  outline-offset: -1px;
-  z-index: 1;
-}
-
-/* ===== STATUS BAR (MS Paint style) ===== */
-.paint-statusbar {
-  display: flex;
-  align-items: center;
-  background: var(--win-gray);
-  flex-shrink: 0;
-  height: 20px;
-  font-size: 11px;
-  padding: 0;
-}
-
-.paint-status-cell {
-  padding: 0 6px;
-  height: 16px;
-  display: flex;
-  align-items: center;
-  white-space: nowrap;
-  border: 1px solid;
-  border-color: #808080 #fff #fff #808080;
-  margin: 0 1px;
-}
-
-.paint-status-cell:first-child {
-  flex: 1;
-}
-
-.paint-status-clock {
-  margin-left: auto;
+  background: var(--bg);
+  font-family: var(--font);
+  font-size: 14px;
+  color: var(--text);
 }
 
 /* ===== CANVAS ===== */
-.canvas-container {
-  width: 100%;
-  height: 100%;
+.excalidraw-canvas {
+  width: 100vw;
+  height: 100vh;
   overflow: hidden;
   position: relative;
-  background: #fff;
-  cursor: crosshair;
+  background: var(--bg);
 }
 
-.canvas-container.panning {
-  cursor: grabbing;
-}
-
-.canvas-container.cursor-text {
-  cursor: text;
-}
-
-.canvas-container.cursor-pan {
-  cursor: grab;
-}
-
-.canvas-container.cursor-pan.panning {
-  cursor: grabbing;
-}
+.cursor-default { cursor: default; }
+.cursor-grab { cursor: grab; }
+.cursor-grabbing { cursor: grabbing; }
+.cursor-text { cursor: text; }
 
 .canvas-viewport {
   transform-origin: 0 0;
@@ -344,46 +52,190 @@ html, body {
   height: 0;
 }
 
-/* ===== CANVAS ITEMS (raw content, Paint-style) ===== */
+/* ===== FLOATING TOOLBAR (top center) ===== */
+.toolbar {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.toolbar-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-size: 18px;
+  cursor: pointer;
+  color: var(--text);
+  transition: background 0.1s;
+}
+
+.toolbar-btn:hover {
+  background: #f0f0f5;
+}
+
+.toolbar-btn.active {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+.toolbar-sep {
+  width: 1px;
+  height: 24px;
+  background: var(--border);
+  margin: 0 4px;
+}
+
+/* ===== ZOOM CONTROLS (bottom left) ===== */
+.zoom-controls {
+  position: fixed;
+  bottom: 12px;
+  left: 12px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.zoom-btn {
+  width: 36px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  cursor: pointer;
+  color: var(--text);
+  transition: background 0.1s;
+}
+
+.zoom-btn:hover {
+  background: #f0f0f5;
+}
+
+.zoom-label {
+  height: 32px;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  min-width: 52px;
+}
+
+.zoom-label:hover {
+  background: #f0f0f5;
+}
+
+/* ===== TOP RIGHT (users + share) ===== */
+.top-right {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.online-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.online-dot {
+  width: 8px;
+  height: 8px;
+  background: #2ecc71;
+  border-radius: 50%;
+}
+
+.share-btn {
+  padding: 6px 16px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+  box-shadow: var(--shadow);
+}
+
+.share-btn:hover {
+  background: #5753c9;
+}
+
+/* ===== CANVAS ITEMS ===== */
 .canvas-item {
   user-select: none;
 }
 
 .canvas-item.selected {
-  outline: 1px dashed #000;
-  outline-offset: 0px;
-}
-
-@keyframes marching-ants {
-  from { outline-offset: 0px; }
-  to { outline-offset: -8px; }
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
 /* ===== TEXT ITEM ===== */
 .text-content {
   min-width: 80px;
-  min-height: 20px;
+  min-height: 24px;
   outline: none;
-  padding: 2px 4px;
-  font-family: var(--win-font);
-  font-size: 11px;
-  line-height: 1.4;
+  padding: 4px 8px;
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.5;
   white-space: pre-wrap;
   word-break: break-word;
   background: transparent;
   cursor: text;
+  border-radius: 4px;
 }
 
 .text-content:focus {
-  background: #fff;
-  border: 1px dashed #808080;
+  background: rgba(101, 100, 219, 0.06);
+  box-shadow: 0 0 0 2px var(--primary);
 }
 
 /* ===== IMAGE ITEM ===== */
 .image-item-body {
-  padding: 0 !important;
-  margin: 0 !important;
+  padding: 0;
+  margin: 0;
   overflow: hidden;
+  border-radius: 4px;
 }
 
 .image-item-body img {
@@ -396,13 +248,16 @@ html, body {
 .file-item-body {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px !important;
-  font-size: 11px;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #f8f8fa;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
 }
 
 .file-icon {
-  font-size: 32px;
+  font-size: 28px;
   flex-shrink: 0;
 }
 
@@ -411,7 +266,7 @@ html, body {
 }
 
 .file-name {
-  font-weight: bold;
+  font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -419,8 +274,8 @@ html, body {
 }
 
 .file-size {
-  color: #808080;
-  font-size: 11px;
+  color: var(--text-secondary);
+  font-size: 12px;
 }
 
 /* ===== EMPTY STATE ===== */
@@ -429,11 +284,38 @@ html, body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  color: #c0c0c0;
-  font-size: 12px;
+  color: #c0c0c8;
+  font-size: 15px;
   text-align: center;
   pointer-events: none;
   user-select: none;
+  letter-spacing: 0.01em;
+}
+
+/* ===== LOADING ===== */
+.loading-screen {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 /* ===== LANDING PAGE ===== */
@@ -443,28 +325,41 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--desktop-bg);
+  background: var(--bg);
 }
 
 .landing-window {
-  min-width: 360px;
   text-align: center;
-}
-
-.landing-window .window-body {
-  padding: 24px 32px !important;
+  padding: 48px;
 }
 
 .landing-title {
-  font-size: 24px;
-  font-weight: bold;
-  letter-spacing: 6px;
-  margin-bottom: 16px;
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+  color: var(--text);
 }
 
 .landing-subtitle {
-  font-size: 12px;
-  color: #808080;
-  margin-bottom: 24px;
-  line-height: 1.5;
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+
+.landing-btn {
+  padding: 12px 32px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.landing-btn:hover {
+  background: #5753c9;
 }
