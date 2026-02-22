@@ -10,6 +10,7 @@ interface CanvasItemProps {
   item: Item;
   sessionId: string;
   selected: boolean;
+  editing: boolean;
   onDelete: (id: string) => void;
   onUpdate: (id: string, updates: Partial<Item>) => Promise<void>;
   onDragStart: (
@@ -19,6 +20,7 @@ interface CanvasItemProps {
     itemY: number
   ) => void;
   onSelect: (id: string) => void;
+  onStartEditing: (id: string) => void;
   onBringToFront: (id: string) => void;
 }
 
@@ -26,10 +28,12 @@ export function CanvasItem({
   item,
   sessionId,
   selected,
+  editing,
   onDelete,
   onUpdate,
   onDragStart,
   onSelect,
+  onStartEditing,
   onBringToFront,
 }: CanvasItemProps) {
   const isAuthor = item.author_session_id === sessionId;
@@ -40,15 +44,22 @@ export function CanvasItem({
       onSelect(item.id);
       onBringToFront(item.id);
 
-      // Don't start drag if clicking inside editable text
-      const target = e.target as HTMLElement;
-      if (target.isContentEditable || target.closest("[contenteditable]")) {
-        return;
-      }
+      // If already editing text, don't start drag
+      if (editing && item.type === "text") return;
 
       onDragStart(e, item.id, item.x, item.y);
     },
-    [item.id, item.x, item.y, onDragStart, onSelect, onBringToFront]
+    [item.id, item.x, item.y, item.type, editing, onDragStart, onSelect, onBringToFront]
+  );
+
+  const handleDoubleClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (item.type === "text" && isAuthor) {
+        onStartEditing(item.id);
+      }
+    },
+    [item.id, item.type, isAuthor, onStartEditing]
   );
 
   return (
@@ -59,12 +70,13 @@ export function CanvasItem({
         left: item.x,
         top: item.y,
         zIndex: item.z_index,
-        cursor: item.type === "text" ? "default" : "move",
+        cursor: editing ? "text" : "move",
       }}
       onPointerDown={handlePointerDown}
+      onDoubleClick={handleDoubleClick}
     >
       {item.type === "text" && (
-        <TextItem item={item} isAuthor={isAuthor} onUpdate={onUpdate} />
+        <TextItem item={item} isAuthor={isAuthor} editing={editing} onUpdate={onUpdate} />
       )}
       {item.type === "image" && <ImageItem item={item} />}
       {item.type === "file" && <FileItem item={item} />}

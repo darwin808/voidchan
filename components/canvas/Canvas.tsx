@@ -34,6 +34,7 @@ export function Canvas({ slug }: CanvasProps) {
   } = useCanvas();
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [connectedCount, setConnectedCount] = useState(1);
   const [dragItemId, setDragItemId] = useState<string | null>(null);
   const [activeTool, setActiveTool] = useState<Tool>("select");
@@ -237,6 +238,7 @@ export function Canvas({ slug }: CanvasProps) {
     (e: React.PointerEvent) => {
       if (e.button === 0) {
         setSelectedId(null);
+        setEditingId(null);
         startPan(e);
       }
     },
@@ -292,10 +294,12 @@ export function Canvas({ slug }: CanvasProps) {
               item={item}
               sessionId={sessionId}
               selected={selectedId === item.id}
+              editing={editingId === item.id}
               onDelete={deleteItem}
               onUpdate={updateItem}
               onDragStart={handleItemDragStart}
               onSelect={setSelectedId}
+              onStartEditing={setEditingId}
               onBringToFront={bringToFront}
             />
           ))}

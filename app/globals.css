@@ -225,9 +225,10 @@ html, body {
   border-radius: 4px;
 }
 
-.text-content:focus {
+.text-editing {
   background: rgba(101, 100, 219, 0.06);
   box-shadow: 0 0 0 2px var(--primary);
+  cursor: text !important;
 }
 
 /* ===== IMAGE ITEM ===== */
