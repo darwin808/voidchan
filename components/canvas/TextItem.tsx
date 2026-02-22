@@ -59,7 +59,7 @@ export function TextItem({ item, isAuthor, editing, onUpdate }: TextItemProps) {
         if (editing) e.stopPropagation();
       }}
     >
-      {item.content || (editing ? "" : "Text")}
+      {item.content || ""}
     </div>
   );
 }

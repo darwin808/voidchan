@@ -169,19 +169,27 @@ export function Canvas({ slug }: CanvasProps) {
 
   // Canvas click: text tool places text
   const handleCanvasClick = useCallback(
-    (e: React.MouseEvent) => {
+    async (e: React.MouseEvent) => {
       if (!room?.id || activeTool !== "text") return;
       const pos = screenToCanvas(e.clientX, e.clientY, canvasState.offsetX, canvasState.offsetY, canvasState.scale);
-      addItem("text", pos.x, pos.y, { content: "" });
+      const item = await addItem("text", pos.x, pos.y, { content: "" });
+      if (item) {
+        setSelectedId(item.id);
+        setEditingId(item.id);
+      }
     },
     [room?.id, activeTool, canvasState, addItem]
   );
 
   const handleDoubleClick = useCallback(
-    (e: React.MouseEvent) => {
+    async (e: React.MouseEvent) => {
       if (!room?.id) return;
       const pos = screenToCanvas(e.clientX, e.clientY, canvasState.offsetX, canvasState.offsetY, canvasState.scale);
-      addItem("text", pos.x, pos.y, { content: "" });
+      const item = await addItem("text", pos.x, pos.y, { content: "" });
+      if (item) {
+        setSelectedId(item.id);
+        setEditingId(item.id);
+      }
     },
     [room?.id, canvasState, addItem]
   );
