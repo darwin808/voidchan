@@ -12,7 +12,7 @@ interface PaintMenuBarProps {
   slug: string;
 }
 
-type OpenMenu = "file" | "edit" | "view" | "help" | null;
+type OpenMenu = "file" | "edit" | "view" | "image" | "colors" | "help" | null;
 
 export function PaintMenuBar({
   onNewText,
@@ -57,16 +57,24 @@ export function PaintMenuBar({
           onClick={() => handleMenuClick("file")}
           onMouseEnter={() => openMenu && setOpenMenu("file")}
         >
-          File
+          <u>F</u>ile
         </button>
         {openMenu === "file" && (
           <div className="paint-dropdown">
-            <button onClick={() => closeAndRun(() => window.open(`/`, "_blank"))}>
-              New Board
+            <button onClick={() => closeAndRun(() => window.open("/", "_self"))}>
+              <u>N</u>ew
             </button>
-            <button onClick={() => closeAndRun(onUpload)}>Open...</button>
+            <button onClick={() => closeAndRun(onUpload)}>
+              <u>O</u>pen...
+            </button>
             <div className="paint-dropdown-sep" />
-            <button onClick={() => closeAndRun(onShare)}>Share Link</button>
+            <button onClick={() => closeAndRun(onShare)}>
+              Share <u>L</u>ink
+            </button>
+            <div className="paint-dropdown-sep" />
+            <button onClick={() => closeAndRun(() => window.open("/", "_blank"))}>
+              New <u>B</u>oard
+            </button>
           </div>
         )}
       </div>
@@ -78,25 +86,29 @@ export function PaintMenuBar({
           onClick={() => handleMenuClick("edit")}
           onMouseEnter={() => openMenu && setOpenMenu("edit")}
         >
-          Edit
+          <u>E</u>dit
         </button>
         {openMenu === "edit" && (
           <div className="paint-dropdown">
             <button onClick={() => closeAndRun(onNewText)}>
-              Paste Text <span className="paint-shortcut">Dbl-Click</span>
+              Paste <u>T</u>ext
+              <span className="paint-shortcut">Dbl-Click</span>
             </button>
             <button onClick={() => closeAndRun(onUpload)}>
-              Paste Image <span className="paint-shortcut">Ctrl+V</span>
+              Paste <u>I</u>mage
+              <span className="paint-shortcut">Ctrl+V</span>
             </button>
             <div className="paint-dropdown-sep" />
-            <button onClick={() => closeAndRun(onSelectAll)}>
-              Select All <span className="paint-shortcut">Ctrl+A</span>
-            </button>
             <button
               onClick={() => closeAndRun(onDeleteSelected)}
               disabled={!hasSelection}
             >
-              Delete <span className="paint-shortcut">Del</span>
+              <u>D</u>elete
+              <span className="paint-shortcut">Del</span>
+            </button>
+            <button onClick={() => closeAndRun(onSelectAll)}>
+              Select <u>A</u>ll
+              <span className="paint-shortcut">Ctrl+A</span>
             </button>
           </div>
         )}
@@ -109,14 +121,64 @@ export function PaintMenuBar({
           onClick={() => handleMenuClick("view")}
           onMouseEnter={() => openMenu && setOpenMenu("view")}
         >
-          View
+          <u>V</u>iew
         </button>
         {openMenu === "view" && (
           <div className="paint-dropdown">
-            <button disabled>Zoom In</button>
-            <button disabled>Zoom Out</button>
-            <div className="paint-dropdown-sep" />
-            <button disabled>Reset View</button>
+            <button disabled>
+              <u>T</u>ool Box
+            </button>
+            <button disabled>
+              <u>C</u>olor Box
+            </button>
+            <button disabled>
+              <u>S</u>tatus Bar
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Image */}
+      <div className="paint-menu-item">
+        <button
+          className={`paint-menu-btn ${openMenu === "image" ? "active" : ""}`}
+          onClick={() => handleMenuClick("image")}
+          onMouseEnter={() => openMenu && setOpenMenu("image")}
+        >
+          <u>I</u>mage
+        </button>
+        {openMenu === "image" && (
+          <div className="paint-dropdown">
+            <button disabled>
+              <u>F</u>lip/Rotate...
+            </button>
+            <button disabled>
+              <u>S</u>tretch/Skew...
+            </button>
+            <button disabled>
+              <u>I</u>nvert Colors
+            </button>
+            <button disabled>
+              <u>A</u>ttributes...
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Colors */}
+      <div className="paint-menu-item">
+        <button
+          className={`paint-menu-btn ${openMenu === "colors" ? "active" : ""}`}
+          onClick={() => handleMenuClick("colors")}
+          onMouseEnter={() => openMenu && setOpenMenu("colors")}
+        >
+          <u>C</u>olors
+        </button>
+        {openMenu === "colors" && (
+          <div className="paint-dropdown">
+            <button disabled>
+              <u>E</u>dit Colors...
+            </button>
           </div>
         )}
       </div>
@@ -128,7 +190,7 @@ export function PaintMenuBar({
           onClick={() => handleMenuClick("help")}
           onMouseEnter={() => openMenu && setOpenMenu("help")}
         >
-          Help
+          <u>H</u>elp
         </button>
         {openMenu === "help" && (
           <div className="paint-dropdown">
@@ -136,12 +198,12 @@ export function PaintMenuBar({
               onClick={() =>
                 closeAndRun(() =>
                   alert(
-                    "voidchan - anonymous ephemeral canvas\n\nDouble-click: New text\nCtrl+V: Paste image\nDrag title bar: Move\nScroll: Zoom\nClick+drag canvas: Pan"
+                    "voidchan\n\nAnonymous ephemeral shared canvas.\n\nDouble-click: New text\nCtrl+V: Paste image\nCtrl+C: Copy image\nDrag title bar: Move\nScroll: Zoom\nClick+drag: Pan"
                   )
                 )
               }
             >
-              About voidchan
+              <u>A</u>bout voidchan
             </button>
           </div>
         )}

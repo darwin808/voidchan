@@ -18,18 +18,16 @@ html, body {
   overflow: hidden;
   background: var(--desktop-bg);
   font-family: var(--win-font);
-  font-size: 12px;
+  font-size: 11px;
 }
 
 /* ===== MS PAINT SHELL ===== */
 .paint-shell {
   width: 100vw;
   height: 100vh;
-  display: flex;
-  align-items: stretch;
-  justify-content: stretch;
   background: var(--desktop-bg);
-  padding: 2px;
+  padding: 0;
+  display: flex;
 }
 
 .paint-window {
@@ -44,14 +42,13 @@ html, body {
   flex-shrink: 0;
 }
 
-/* ===== MENU BAR ===== */
+/* ===== MENU BAR (exact MS Paint) ===== */
 .paint-menubar {
   display: flex;
   align-items: center;
   background: var(--win-gray);
-  padding: 1px 0;
+  padding: 0;
   flex-shrink: 0;
-  border-bottom: 1px solid #808080;
 }
 
 .paint-menu-item {
@@ -60,18 +57,26 @@ html, body {
 
 .paint-menu-btn {
   background: none;
-  border: none;
-  padding: 2px 8px;
+  border: 1px solid transparent;
+  padding: 1px 6px;
   font-family: var(--win-font);
-  font-size: 12px;
+  font-size: 11px;
   cursor: default;
   min-width: unset;
+  line-height: 1.4;
 }
 
-.paint-menu-btn:hover,
+.paint-menu-btn u {
+  text-decoration: underline;
+}
+
+.paint-menu-btn:hover {
+  border-color: #fff #808080 #808080 #fff;
+}
+
 .paint-menu-btn.active {
-  background: #000080;
-  color: #fff;
+  background: #fff;
+  border-color: #808080 #fff #fff #808080;
 }
 
 .paint-dropdown {
@@ -79,11 +84,11 @@ html, body {
   top: 100%;
   left: 0;
   z-index: 10000;
-  min-width: 200px;
+  min-width: 180px;
   background: var(--win-gray);
   border: 2px solid;
   border-color: #fff #808080 #808080 #fff;
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.25);
   padding: 2px;
 }
 
@@ -93,13 +98,17 @@ html, body {
   align-items: center;
   width: 100%;
   background: none;
-  border: none;
-  padding: 3px 24px 3px 8px;
+  border: 1px solid transparent;
+  padding: 2px 16px 2px 20px;
   font-family: var(--win-font);
-  font-size: 12px;
+  font-size: 11px;
   text-align: left;
   cursor: default;
   min-width: unset;
+}
+
+.paint-dropdown button u {
+  text-decoration: underline;
 }
 
 .paint-dropdown button:hover:not(:disabled) {
@@ -114,55 +123,73 @@ html, body {
 .paint-shortcut {
   color: #808080;
   font-size: 11px;
+  margin-left: 20px;
 }
 
-.paint-dropdown button:hover .paint-shortcut {
+.paint-dropdown button:hover:not(:disabled) .paint-shortcut {
   color: #c0c0c0;
 }
 
 .paint-dropdown-sep {
-  height: 1px;
-  margin: 2px 4px;
+  height: 0;
+  margin: 3px 2px;
   border-top: 1px solid #808080;
   border-bottom: 1px solid #fff;
 }
 
-/* ===== TOOLBOX ===== */
+/* ===== TOOLBOX (MS Paint: 2col × 8row grid) ===== */
 .paint-toolbox {
-  width: 52px;
+  width: 58px;
   flex-shrink: 0;
   background: var(--win-gray);
-  border-right: 1px solid #808080;
-  padding: 4px;
+  padding: 2px 4px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  border-right: 1px solid #808080;
+  box-shadow: inset -1px 0 0 #dfdfdf;
 }
 
 .paint-toolbox-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1px;
+  gap: 0px;
+  border: 2px solid;
+  border-color: #808080 #fff #fff #808080;
+  padding: 1px;
+  background: var(--win-gray);
 }
 
 .paint-tool-btn {
-  width: 22px;
+  width: 24px;
   height: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 13px;
+  line-height: 1;
   padding: 0;
-  border: 1px solid;
-  border-color: #fff #808080 #808080 #fff;
+  border: 1px solid transparent;
   background: var(--win-gray);
   cursor: default;
   min-width: unset;
 }
 
+.paint-tool-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
 .paint-tool-btn.active {
   border-color: #808080 #fff #fff #808080;
-  background: #b0b0b0;
+  background: #fff;
+}
+
+.paint-tool-btn:hover:not(.active) {
+  border-color: #fff #808080 #808080 #fff;
 }
 
 .paint-tool-btn:active {
@@ -181,94 +208,105 @@ html, body {
   flex: 1;
   position: relative;
   overflow: hidden;
+  /* Sunken 3D border like MS Paint canvas area */
   border: 2px solid;
   border-color: #808080 #fff #fff #808080;
+  background: #808080;
 }
 
-/* ===== COLOR PALETTE ===== */
+/* ===== COLOR PALETTE (exact MS Paint: 28 colors in 2 rows) ===== */
 .paint-palette {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 4px 8px;
+  gap: 4px;
+  padding: 2px 4px;
   background: var(--win-gray);
   flex-shrink: 0;
-  border-top: 1px solid #fff;
+  border-top: 1px solid #808080;
+  box-shadow: inset 0 1px 0 #fff;
+  height: 34px;
 }
 
 .paint-color-preview {
   position: relative;
-  width: 28px;
+  width: 30px;
   height: 28px;
   flex-shrink: 0;
+  margin-right: 2px;
 }
 
 .paint-color-fg {
   position: absolute;
   top: 0;
   left: 0;
-  width: 18px;
-  height: 18px;
-  border: 1px solid;
-  border-color: #808080 #fff #fff #808080;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #808080;
+  z-index: 1;
 }
 
 .paint-color-bg {
   position: absolute;
   bottom: 0;
   right: 0;
-  width: 18px;
-  height: 18px;
-  border: 1px solid;
-  border-color: #808080 #fff #fff #808080;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #808080;
 }
 
 .paint-color-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1px;
+  display: grid;
+  grid-template-columns: repeat(14, 16px);
+  grid-template-rows: 16px 16px;
+  gap: 0px;
+  border: 2px solid;
+  border-color: #808080 #fff #fff #808080;
+  padding: 0;
 }
 
 .paint-color-swatch {
   width: 16px;
   height: 16px;
-  border: 1px solid;
-  border-color: #808080 #fff #fff #808080;
+  border: none;
   padding: 0;
   cursor: default;
   min-width: unset;
 }
 
-.paint-color-swatch:active {
-  border-color: #fff #808080 #808080 #fff;
+.paint-color-swatch:hover {
+  outline: 1px solid #000;
+  outline-offset: -1px;
+  z-index: 1;
 }
 
-/* ===== STATUS BAR ===== */
+/* ===== STATUS BAR (MS Paint style) ===== */
 .paint-statusbar {
   display: flex;
   align-items: center;
   background: var(--win-gray);
   flex-shrink: 0;
-  border-top: 1px solid #fff;
-  height: 22px;
+  height: 20px;
   font-size: 11px;
+  padding: 0;
 }
 
 .paint-status-cell {
-  padding: 0 8px;
-  border-right: 1px solid;
-  border-right-color: #808080;
-  box-shadow: 1px 0 0 #fff;
-  height: 100%;
+  padding: 0 6px;
+  height: 16px;
   display: flex;
   align-items: center;
   white-space: nowrap;
+  border: 1px solid;
+  border-color: #808080 #fff #fff #808080;
+  margin: 0 1px;
+}
+
+.paint-status-cell:first-child {
+  flex: 1;
 }
 
 .paint-status-clock {
   margin-left: auto;
-  border-right: none;
-  box-shadow: none;
 }
 
 /* ===== CANVAS ===== */
@@ -338,7 +376,7 @@ html, body {
   outline: none;
   padding: 4px;
   font-family: var(--win-font);
-  font-size: 12px;
+  font-size: 11px;
   line-height: 1.4;
   white-space: pre-wrap;
   word-break: break-word;
@@ -349,33 +387,6 @@ html, body {
 }
 
 /* ===== IMAGE ITEM ===== */
-.blurhash-container {
-  position: relative;
-  overflow: hidden;
-}
-
-.blurhash-container canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.blurhash-container img {
-  position: relative;
-  width: 100%;
-  height: auto;
-  display: block;
-  opacity: 0;
-  transition: opacity 300ms ease;
-}
-
-.blurhash-container img.loaded {
-  opacity: 1;
-}
-
 .image-item-body {
   padding: 0 !important;
   margin: 0 !important;
@@ -394,7 +405,7 @@ html, body {
   align-items: center;
   gap: 8px;
   padding: 8px !important;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .file-icon {
@@ -426,7 +437,7 @@ html, body {
   left: 50%;
   transform: translate(-50%, -50%);
   color: #c0c0c0;
-  font-size: 13px;
+  font-size: 12px;
   text-align: center;
   pointer-events: none;
   user-select: none;

@@ -37,7 +37,7 @@ export function Canvas({ slug }: CanvasProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [connectedCount, setConnectedCount] = useState(1);
   const [dragItemId, setDragItemId] = useState<string | null>(null);
-  const [activeTool, setActiveTool] = useState<PaintTool>("select");
+  const [activeTool, setActiveTool] = useState<PaintTool>("pencil");
   const [mouseCanvasPos, setMouseCanvasPos] = useState({ x: 0, y: 0 });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -327,9 +327,7 @@ export function Canvas({ slug }: CanvasProps) {
     (e: React.PointerEvent) => {
       if (e.button === 0) {
         setSelectedId(null);
-        if (activeTool === "pan" || activeTool === "select") {
-          startPan(e);
-        }
+        startPan(e);
       }
     },
     [activeTool, startPan]
@@ -382,7 +380,7 @@ export function Canvas({ slug }: CanvasProps) {
             <div
               ref={containerRef}
               className={`canvas-container ${canvasState.mode === "panning" ? "panning" : ""} ${
-                activeTool === "text" ? "cursor-text" : activeTool === "pan" ? "cursor-pan" : ""
+                activeTool === "text" ? "cursor-text" : ""
               }`}
               onPointerDown={handleCanvasPointerDown}
               onPointerMove={handlePointerMove}
