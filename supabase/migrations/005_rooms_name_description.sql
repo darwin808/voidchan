@@ -1,0 +1,4 @@
+ALTER TABLE public.rooms ADD COLUMN IF NOT EXISTS name TEXT DEFAULT 'Untitled Board';
+ALTER TABLE public.rooms ADD COLUMN IF NOT EXISTS description TEXT DEFAULT '';
+ALTER TABLE public.rooms REPLICA IDENTITY FULL;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.rooms;

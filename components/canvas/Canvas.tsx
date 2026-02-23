@@ -12,6 +12,7 @@ import { CanvasItem } from "./CanvasItem";
 import { Toolbar, type Tool } from "@/components/toolbar/Toolbar";
 import { ZoomControls } from "@/components/toolbar/ZoomControls";
 import { TopRight } from "@/components/toolbar/TopRight";
+import { BoardHeader } from "@/components/toolbar/BoardHeader";
 import { createClient } from "@/lib/supabase/client";
 
 interface CanvasProps {
@@ -321,6 +322,7 @@ export function Canvas({ slug }: CanvasProps) {
       </div>
 
       {/* Floating UI */}
+      {room && <BoardHeader room={room} />}
       <Toolbar activeTool={activeTool} onToolChange={setActiveTool} onUpload={handleUpload} />
       <ZoomControls
         scale={canvasState.scale}

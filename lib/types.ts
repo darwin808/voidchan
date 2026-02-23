@@ -3,6 +3,8 @@ export type ItemType = 'text' | 'image' | 'file';
 export interface Room {
   id: string;
   slug: string;
+  name: string;
+  description: string;
   created_at: string;
   last_activity_at: string;
 }
